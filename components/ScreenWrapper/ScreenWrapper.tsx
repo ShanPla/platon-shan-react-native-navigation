@@ -1,26 +1,32 @@
-import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
-import { ReactNode, useContext } from "react";
+import { Animated } from "react-native";
+import { useContext, useEffect, useRef } from "react";
 import { ShopContext } from "../../context/ShopContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
 
-type Props = {
-  children: ReactNode;
-  style?: StyleProp<ViewStyle>;
-};
-
-export default function ScreenWrapper({ children }: Props) {
+export default function ScreenWrapper({ children }: { children: React.ReactNode }) {
   const { darkMode } = useContext(ShopContext);
   const theme = darkMode ? darkTheme : lightTheme;
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    fadeAnim.setValue(0);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 400,
+      useNativeDriver: false,
+    }).start();
+  }, [darkMode]);
+
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <Animated.View
+      style={{
+        flex: 1,
+        backgroundColor: theme.background,
+        opacity: fadeAnim,
+      }}
+    >
       {children}
-    </View>
+    </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
