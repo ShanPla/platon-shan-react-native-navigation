@@ -15,6 +15,7 @@ type ShopContextType = {
   increaseQty: (id: string) => void;
   decreaseQty: (id: string) => void;
   totalPrice: number;
+  cartCount: number;
   darkMode: boolean;
   toggleTheme: () => void;
 };
@@ -58,6 +59,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     );
 
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <ShopContext.Provider
@@ -68,6 +70,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         increaseQty,
         decreaseQty,
         totalPrice,
+        cartCount,
         darkMode,
         toggleTheme: () => setDarkMode(!darkMode),
       }}
