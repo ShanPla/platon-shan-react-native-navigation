@@ -5,7 +5,6 @@ export default StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 18,
     paddingHorizontal: 20,
-    marginHorizontal: -20,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
