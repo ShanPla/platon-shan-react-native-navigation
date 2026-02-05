@@ -32,13 +32,14 @@ export default StyleSheet.create({
   },
   buttonText: {
     color: "#fff",
-    fontWeight: "bold",
+    fontWeight: "600",
+    fontSize: 16,
   },
   cartBtn: {
-    padding: 15,
-    borderRadius: 10,
+    padding: 11,
+    borderRadius: 12,
     alignItems: "center",
-    marginTop: 10,
+    margin: 10,
   },
   name: {
     fontSize: 16,
