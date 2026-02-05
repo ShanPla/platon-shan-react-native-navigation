@@ -9,7 +9,7 @@ import styles from "../../styles/CheckoutStyles";
 import { useRouter, useNavigation } from "expo-router";
 
 export default function Checkout() {
-  const { cart, totalPrice, darkMode } = useContext(ShopContext);
+  const { cart, totalPrice, darkMode, clearCart } = useContext(ShopContext);
   const theme = darkMode ? darkTheme : lightTheme;
   const router = useRouter();
   const navigation = useNavigation();
@@ -41,7 +41,11 @@ export default function Checkout() {
 
   const handleCheckout = () => {
     Alert.alert("Success", "Checkout successful", [
-      { text: "OK", onPress: () => router.replace("/") },
+      { text: "OK", onPress: () => {
+          clearCart(); // <- clear the cart
+          router.replace("/");
+        } 
+      },
     ]);
   };
 

@@ -18,6 +18,7 @@ type ShopContextType = {
   cartCount: number;
   darkMode: boolean;
   toggleTheme: () => void;
+  clearCart: () => void;
 };
 
 export const ShopContext = createContext<ShopContextType>({} as ShopContextType);
@@ -25,6 +26,7 @@ export const ShopContext = createContext<ShopContextType>({} as ShopContextType)
 export function ShopProvider({ children }: { children: ReactNode }) {
   const [darkMode, setDarkMode] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const clearCart = () => setCart([]);
 
   const products: Product[] = [
     { id: "1", name: "Dumbbell Set", price: 120 },
@@ -72,6 +74,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         totalPrice,
         cartCount,
         darkMode,
+        clearCart,
         toggleTheme: () => setDarkMode(!darkMode),
       }}
     >
