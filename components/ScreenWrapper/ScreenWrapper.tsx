@@ -1,9 +1,14 @@
-import { Animated } from "react-native";
+import { Animated, ViewStyle, StyleProp } from "react-native";
 import { useContext, useEffect, useRef } from "react";
 import { ShopContext } from "../../context/ShopContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
 
-export default function ScreenWrapper({ children }: { children: React.ReactNode }) {
+type ScreenWrapperProps = {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+};
+
+export default function ScreenWrapper({ children, style }: ScreenWrapperProps) {
   const { darkMode } = useContext(ShopContext);
   const theme = darkMode ? darkTheme : lightTheme;
 
@@ -20,11 +25,14 @@ export default function ScreenWrapper({ children }: { children: React.ReactNode 
 
   return (
     <Animated.View
-      style={{
-        flex: 1,
-        backgroundColor: theme.background,
-        opacity: fadeAnim,
-      }}
+      style={[
+        {
+          flex: 1,
+          backgroundColor: theme.background,
+          opacity: fadeAnim,
+        },
+        style,
+      ]}
     >
       {children}
     </Animated.View>
