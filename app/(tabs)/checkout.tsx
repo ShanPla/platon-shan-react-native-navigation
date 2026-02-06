@@ -12,8 +12,6 @@ export default function Checkout() {
   const { cart, darkMode, removeItem, selectedItems } = useContext(ShopContext);
   const theme = darkMode ? darkTheme : lightTheme;
   const router = useRouter();
-
-  // ✅ Dynamically get selected items (real-time)
   const selectedCartItems = cart.filter(item => selectedItems.includes(item.id));
 
   const productImages: { [key: string]: any } = {
@@ -45,15 +43,23 @@ export default function Checkout() {
       return;
     }
 
-    Alert.alert("Success", "Checkout successful", [
-      {
-        text: "OK",
-        onPress: () => {
-          selectedCartItems.forEach(item => removeItem(item.id));
-          router.replace("/");
+    Alert.alert(
+      "Confirm Checkout",
+      `Are you sure you want to purchase ${selectedCartItems.length} item(s) for $${selectedCartItems
+        .reduce((sum, item) => sum + item.price * item.quantity, 0)
+        .toFixed(2)}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Confirm",
+          onPress: () => {
+            selectedCartItems.forEach(item => removeItem(item.id));
+            Alert.alert("Success", "Checkout successful!");
+            router.replace("/");
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
 
   const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0);
