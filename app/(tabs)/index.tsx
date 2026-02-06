@@ -1,6 +1,6 @@
-import { View, Text, FlatList, Alert } from "react-native";
-import { useContext } from "react";
-import { useRouter } from "expo-router";
+import { View, Text, FlatList, Alert, BackHandler } from "react-native";
+import { useContext, useCallback } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
 import { ShopContext } from "../../context/ShopContext";
 import styles from "../../styles/HomeStyle";
 import { lightTheme, darkTheme } from "../../styles/theme";
@@ -11,8 +11,30 @@ import ScreenWrapper from "../../components/ScreenWrapper/ScreenWrapper";
 export default function Home() {
   const { products, addToCart, darkMode } = useContext(ShopContext);
   const theme = darkMode ? darkTheme : lightTheme;
-
   const router = useRouter();
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert("Exit App?", "Are you sure you want to exit?", [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Exit",
+            style: "destructive",
+            onPress: () => BackHandler.exitApp(),
+          },
+        ]);
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress
+      );
+
+      return () => subscription.remove();
+    }, [])
+  );
 
   return (
     <ScreenWrapper style={{ backgroundColor: theme.background }}>
@@ -26,20 +48,17 @@ export default function Home() {
         data={products}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 30 }}
-        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <View style={[styles.card, { backgroundColor: theme.card }]}>
             <Text style={[styles.name, { color: theme.text }]}>{item.name}</Text>
 
-            <Text style={{ color: theme.text, marginVertical: 6 }}>
-              ${item.price}
-            </Text>
+            <Text style={{ color: theme.text }}>${item.price}</Text>
 
             <AnimatedButton
               title="Add to Cart"
               onPress={() => {
                 addToCart(item);
-                Alert.alert("Added to cart!", `${item.name} was added to your cart 🛒`);
+                Alert.alert("Added to cart!", `${item.name} added 🛒`);
               }}
               style={[styles.button, { backgroundColor: theme.button }]}
               textStyle={styles.buttonText}
@@ -47,6 +66,7 @@ export default function Home() {
           </View>
         )}
       />
+
       <AnimatedButton
         title="Go to Cart"
         onPress={() => router.push("/cart")}
