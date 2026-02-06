@@ -13,6 +13,7 @@ export default function Checkout() {
   const theme = darkMode ? darkTheme : lightTheme;
   const router = useRouter();
 
+  // Focus-aware back button
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
@@ -27,11 +28,7 @@ export default function Checkout() {
         return true;
       };
 
-      const sub = BackHandler.addEventListener(
-        "hardwareBackPress",
-        onBackPress
-      );
-
+      const sub = BackHandler.addEventListener("hardwareBackPress", onBackPress);
       return () => sub.remove();
     }, [])
   );
@@ -52,27 +49,38 @@ export default function Checkout() {
     <ScreenWrapper>
       <Navbar />
 
-      <FlatList
-        data={cart}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 15 }}
-        renderItem={({ item }) => (
-          <Text style={[styles.item, { color: theme.text }]}>
-            {item.name} x{item.quantity} — ${item.price * item.quantity}
+      {cart.length === 0 ? (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 40 }}>
+          <Text style={{ fontSize: 60 }}>📦</Text>
+          <Text style={{ color: theme.text, fontSize: 18, marginTop: 10 }}>
+            No items to checkout
           </Text>
-        )}
-      />
+        </View>
+      ) : (
+        <>
+          <FlatList
+            data={cart}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ padding: 15 }}
+            renderItem={({ item }) => (
+              <Text style={[styles.item, { color: theme.text }]}>
+                {item.name} x{item.quantity} — ${item.price * item.quantity}
+              </Text>
+            )}
+          />
 
-      <Text style={[styles.total, { color: theme.text }]}>
-        Total: ${totalPrice}
-      </Text>
+          <Text style={[styles.total, { color: theme.text }]}>
+            Total: ${totalPrice}
+          </Text>
 
-      <AnimatedButton
-        title="Checkout"
-        onPress={handleCheckout}
-        style={[styles.button, { backgroundColor: theme.button }]}
-        textStyle={styles.buttonText}
-      />
+          <AnimatedButton
+            title="Checkout"
+            onPress={handleCheckout}
+            style={[styles.button, { backgroundColor: theme.button }]}
+            textStyle={styles.buttonText}
+          />
+        </>
+      )}
     </ScreenWrapper>
   );
 }

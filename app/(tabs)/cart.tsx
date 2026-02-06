@@ -16,6 +16,7 @@ export default function Cart() {
   const theme = darkMode ? darkTheme : lightTheme;
   const router = useRouter();
 
+  // Focus-aware back button
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
@@ -30,11 +31,7 @@ export default function Cart() {
         return true;
       };
 
-      const sub = BackHandler.addEventListener(
-        "hardwareBackPress",
-        onBackPress
-      );
-
+      const sub = BackHandler.addEventListener("hardwareBackPress", onBackPress);
       return () => sub.remove();
     }, [])
   );
@@ -44,10 +41,13 @@ export default function Cart() {
       <Navbar />
 
       {cart.length === 0 ? (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 40 }}>
           <Text style={{ fontSize: 60 }}>🛒</Text>
-          <Text style={{ color: theme.text, fontSize: 18 }}>
+          <Text style={{ color: theme.text, fontSize: 18, marginTop: 10 }}>
             Your cart is empty
+          </Text>
+          <Text style={{ color: "gray", marginTop: 5 }}>
+            Add some gym gear to get started! 💪
           </Text>
         </View>
       ) : (
