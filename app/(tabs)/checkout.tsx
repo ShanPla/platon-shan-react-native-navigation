@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Alert, BackHandler } from "react-native";
+import { View, Text, Image, ScrollView, Alert, BackHandler } from "react-native";
 import { useContext, useCallback } from "react";
 import { ShopContext } from "../../context/ShopContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
@@ -9,21 +9,27 @@ import styles from "../../styles/CheckoutStyles";
 import { useRouter, useFocusEffect } from "expo-router";
 
 export default function Checkout() {
-  const { cart, totalPrice, darkMode, clearCart } = useContext(ShopContext);
+  const { cart, darkMode, removeItem, selectedItems } = useContext(ShopContext);
   const theme = darkMode ? darkTheme : lightTheme;
   const router = useRouter();
 
-  // Focus-aware back button
+  // ✅ Dynamically get selected items (real-time)
+  const selectedCartItems = cart.filter(item => selectedItems.includes(item.id));
+
+  const productImages: { [key: string]: any } = {
+    "1": require("../../assets/product-images/db-set.webp"),
+    "2": require("../../assets/product-images/barbell.jpg"),
+    "3": require("../../assets/product-images/whey.jpg"),
+    "4": require("../../assets/product-images/creatine.avif"),
+    "5": require("../../assets/product-images/powerrack.jpg"),
+  };
+
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
         Alert.alert("Cancel Checkout?", "Your order is not completed yet.", [
           { text: "Stay", style: "cancel" },
-          {
-            text: "Go back",
-            style: "destructive",
-            onPress: () => router.back(),
-          },
+          { text: "Go back", style: "destructive", onPress: () => router.back() },
         ]);
         return true;
       };
@@ -34,52 +40,79 @@ export default function Checkout() {
   );
 
   const handleCheckout = () => {
+    if (selectedCartItems.length === 0) {
+      Alert.alert("No items selected", "Please select items to checkout.");
+      return;
+    }
+
     Alert.alert("Success", "Checkout successful", [
       {
         text: "OK",
         onPress: () => {
-          clearCart();
+          selectedCartItems.forEach(item => removeItem(item.id));
           router.replace("/");
         },
       },
     ]);
   };
 
+  const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = selectedCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   return (
     <ScreenWrapper>
       <Navbar />
 
-      {cart.length === 0 ? (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 40 }}>
-          <Text style={{ fontSize: 60 }}>📦</Text>
-          <Text style={{ color: theme.text, fontSize: 18, marginTop: 10 }}>
-            No items to checkout
+      {selectedCartItems.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={{ fontSize: 80 }}>📦</Text>
+          <Text style={[styles.emptyText, { color: theme.text }]}>
+            No items selected for checkout
           </Text>
         </View>
       ) : (
-        <>
-          <FlatList
-            data={cart}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{ padding: 15 }}
-            renderItem={({ item }) => (
-              <Text style={[styles.item, { color: theme.text }]}>
-                {item.name} x{item.quantity} — ${item.price * item.quantity}
+        <View style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <Text style={[styles.header, { color: theme.text }]}>Order Summary</Text>
+
+            {selectedCartItems.map((item) => (
+              <View key={item.id} style={[styles.itemCard, { backgroundColor: theme.card }]}>
+                <Image
+                  source={productImages[item.id]}
+                  style={styles.itemImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.itemInfo}>
+                  <Text style={[styles.itemName, { color: theme.text }]}>{item.name}</Text>
+                  <Text style={[styles.itemQuantity, { color: theme.text }]}>
+                    Quantity: {item.quantity}
+                  </Text>
+                  <Text style={[styles.itemPrice, { color: theme.text }]}>
+                    ${(item.price * item.quantity).toFixed(2)}
+                  </Text>
+                </View>
+              </View>
+            ))}
+
+            <View style={styles.summaryContainer}>
+              <Text style={[styles.summaryText, { color: theme.text }]}>
+                Total items: {totalItems}
               </Text>
-            )}
-          />
+              <Text style={[styles.summaryText, { color: theme.text }]}>
+                Total Price: ${totalPrice.toFixed(2)}
+              </Text>
+            </View>
+          </ScrollView>
 
-          <Text style={[styles.total, { color: theme.text }]}>
-            Total: ${totalPrice}
-          </Text>
-
-          <AnimatedButton
-            title="Checkout"
-            onPress={handleCheckout}
-            style={[styles.button, { backgroundColor: theme.button }]}
-            textStyle={styles.buttonText}
-          />
-        </>
+          <View style={[styles.checkoutFooter, { backgroundColor: theme.background }]}>
+            <AnimatedButton
+              title="Checkout Selected Items"
+              onPress={handleCheckout}
+              style={[styles.button, { backgroundColor: theme.button }]}
+              textStyle={styles.buttonText}
+            />
+          </View>
+        </View>
       )}
     </ScreenWrapper>
   );

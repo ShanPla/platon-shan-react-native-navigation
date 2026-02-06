@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Alert, BackHandler } from "react-native";
+import { View, Text, FlatList, Image, Alert, BackHandler } from "react-native";
 import { useContext, useCallback } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
 import { ShopContext } from "../../context/ShopContext";
@@ -18,11 +18,7 @@ export default function Home() {
       const onBackPress = () => {
         Alert.alert("Exit App?", "Are you sure you want to exit?", [
           { text: "Cancel", style: "cancel" },
-          {
-            text: "Exit",
-            style: "destructive",
-            onPress: () => BackHandler.exitApp(),
-          },
+          { text: "Exit", style: "destructive", onPress: () => BackHandler.exitApp() },
         ]);
         return true;
       };
@@ -31,10 +27,17 @@ export default function Home() {
         "hardwareBackPress",
         onBackPress
       );
-
       return () => subscription.remove();
     }, [])
   );
+
+  const productImages: { [key: string]: any } = {
+    "1": require("../../assets/product-images/db-set.webp"),
+    "2": require("../../assets/product-images/barbell.jpg"),
+    "3": require("../../assets/product-images/whey.jpg"),
+    "4": require("../../assets/product-images/creatine.avif"),
+    "5": require("../../assets/product-images/powerrack.jpg"),
+  };
 
   return (
     <ScreenWrapper style={{ backgroundColor: theme.background }}>
@@ -47,12 +50,19 @@ export default function Home() {
       <FlatList
         data={products}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 15 }}
         renderItem={({ item }) => (
           <View style={[styles.card, { backgroundColor: theme.card }]}>
-            <Text style={[styles.name, { color: theme.text }]}>{item.name}</Text>
+            <Image
+              source={productImages[item.id]}
+              style={styles.productImage}
+              resizeMode="contain"
+            />
 
-            <Text style={{ color: theme.text }}>${item.price}</Text>
+            <Text style={[styles.name, { color: theme.text }]}>{item.name}</Text>
+            <Text style={[styles.price, { color: theme.text }]}>
+              ${item.price.toFixed(2)}
+            </Text>
 
             <AnimatedButton
               title="Add to Cart"
@@ -69,7 +79,7 @@ export default function Home() {
 
       <AnimatedButton
         title="Go to Cart"
-        onPress={() => router.push("/cart")}
+        onPress={() => router.replace("/cart")}
         style={[styles.cartBtn, { backgroundColor: theme.button }]}
         textStyle={styles.buttonText}
       />
