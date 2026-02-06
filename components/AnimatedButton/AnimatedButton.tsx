@@ -25,7 +25,9 @@ export default function AnimatedButton({
 
   const handlePressIn = () => {
     Animated.spring(scale, {
-      toValue: 0.95,
+      toValue: 0.96,
+      speed: 30,
+      bounciness: 0,
       useNativeDriver: true,
     }).start();
   };
@@ -33,18 +35,29 @@ export default function AnimatedButton({
   const handlePressOut = () => {
     Animated.spring(scale, {
       toValue: 1,
-      friction: 3,
+      speed: 20,
+      bounciness: 0,
       useNativeDriver: true,
     }).start();
   };
 
   return (
-    <Animated.View style={{ transform: [{ scale }] }}>
-      <Pressable onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
-        <Animated.View style={style}>
-          <Text style={textStyle}>{title}</Text>
-        </Animated.View>
-      </Pressable>
-    </Animated.View>
+    <Pressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      hitSlop={10}
+    >
+      <Animated.View
+        style={[
+          style,
+          {
+            transform: [{ scale }],
+          },
+        ]}
+      >
+        <Text style={textStyle}>{title}</Text>
+      </Animated.View>
+    </Pressable>
   );
 }
